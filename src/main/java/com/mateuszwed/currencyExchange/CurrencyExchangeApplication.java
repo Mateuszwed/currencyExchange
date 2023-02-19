@@ -10,5 +10,5 @@ public class CurrencyExchangeApplication {
 		SpringApplication.run(CurrencyExchangeApplication.class, args);
 	}
 
-	// test
+	// test + test2
 }
