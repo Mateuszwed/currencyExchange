@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExchangeDto {
-
     private BigDecimal amount;
     private String fromCurrency;
     private String toCurrency;
