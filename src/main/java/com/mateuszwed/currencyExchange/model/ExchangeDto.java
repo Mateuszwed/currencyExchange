@@ -1,7 +1,5 @@
 package com.mateuszwed.currencyExchange.model;
-
 import lombok.*;
-
 import java.math.BigDecimal;
 
 @Getter
