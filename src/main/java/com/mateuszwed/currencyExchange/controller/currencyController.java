@@ -20,9 +20,18 @@ public class currencyController {
     private static final Logger logger = LoggerFactory.getLogger(currencyController.class);
 
     @PostMapping
-    public ResponseEntity<ExchangeDto> currencyExchange(@RequestBody Exchange exchange){
-            ExchangeDto exchangeDto = new ExchangeDto(exchange.getAmount(), exchange.getFromCurrency(), exchange.getToCurrency(), new BigDecimal(200));
-            logger.info("Create exchange: " + exchangeDto.getAmount() + " " + exchangeDto.getFromCurrency() + " " + exchangeDto.getToCurrency() + " " + exchangeDto.getConvertedAmount());
-            return new ResponseEntity<>(exchangeDto, HttpStatus.CREATED);
+    public ResponseEntity<ExchangeDto> currencyExchange(@RequestBody Exchange exchange) {
+        ExchangeDto exchangeDto = new ExchangeDto(exchange.getAmount(),
+                exchange.getFromCurrency(),
+                exchange.getToCurrency(),
+                exchange.getAmount().multiply(new BigDecimal(2)));
+
+        logger.info("Create exchange: "
+                + exchangeDto.getAmount() + " "
+                + exchangeDto.getFromCurrency() + " "
+                + exchangeDto.getToCurrency() + " "
+                + exchangeDto.getConvertedAmount());
+
+        return new ResponseEntity<>(exchangeDto, HttpStatus.CREATED);
     }
 }
