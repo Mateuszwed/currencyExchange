@@ -1,4 +1,4 @@
-package com.mateuszwed.currencyExchange.model;
+package com.mateuszwed.currencyExchange.dto;
 import lombok.*;
 import java.math.BigDecimal;
 

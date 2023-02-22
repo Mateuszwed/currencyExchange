@@ -1,7 +1,9 @@
 package com.mateuszwed.currencyExchange.controller;
+
+import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.Exchange;
-import com.mateuszwed.currencyExchange.model.ExchangeDto;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
 @RestController
 @Log
 @RequestMapping("/exchanges")
+@RequiredArgsConstructor
 public class CurrencyController {
     @ApiOperation("Method convert currency exchange")
     @PostMapping
