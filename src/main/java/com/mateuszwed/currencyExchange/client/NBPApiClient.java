@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.java.Log;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -24,11 +25,13 @@ public class NBPApiClient {
 
     public List<NBPRateDto> getResponseFromNBPApi(String table) {
         try {
-            var response = restTemplate.exchange(table, HttpMethod.GET, null, new ParameterizedTypeReference<List<NBPDto>>() {
-            }).getBody();
-            return response.get(0).getRates();
+            ResponseEntity<List<NBPDto>> response = restTemplate.exchange(table, HttpMethod.GET, null, new ParameterizedTypeReference<List<NBPDto>>() {
+            });
+            log.info(response.getStatusCode().toString());
+            return response.getBody().get(0).getRates();
         } catch (HttpClientErrorException e) {
-            throw new HttpException("Problem with NPB API");
+            log.warning(e.getStatusCode().toString());
+            throw new HttpException("Problem with call to NPB API, status code: " + e.getStatusCode());
         }
     }
 }
