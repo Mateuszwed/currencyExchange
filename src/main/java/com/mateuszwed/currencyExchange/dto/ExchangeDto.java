@@ -1,13 +1,17 @@
 package com.mateuszwed.currencyExchange.dto;
+
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 
 @Getter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExchangeDto {
-    private BigDecimal amount;
-    private String fromCurrency;
-    private String toCurrency;
-    private BigDecimal convertedAmount;
+    BigDecimal amount;
+    String fromCurrency;
+    String toCurrency;
+    BigDecimal convertedAmount;
 }

@@ -1,10 +1,15 @@
 package com.mateuszwed.currencyExchange.model;
+
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 
 @Getter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Exchange {
-    private BigDecimal amount;
-    private String fromCurrency;
-    private String toCurrency;
+    BigDecimal amount;
+    String fromCurrency;
+    String toCurrency;
 }

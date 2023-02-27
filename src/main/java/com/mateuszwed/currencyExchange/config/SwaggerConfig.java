@@ -1,4 +1,5 @@
 package com.mateuszwed.currencyExchange.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -22,6 +23,7 @@ public class SwaggerConfig {
                 .contact(new Contact("Mateusz", "", "mateuszwed@o2.pl"))
                 .build();
     }
+
     @Bean
     public Docket swaggerApi() {
         return new Docket(DocumentationType.SWAGGER_2)

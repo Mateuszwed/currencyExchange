@@ -1,14 +1,16 @@
 package com.mateuszwed.currencyExchange.dto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
-@ToString
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NBPRateDto {
-    private String currency;
-    private String code;
-    private BigDecimal mid;
+    String currency;
+    String code;
+    BigDecimal mid;
 }

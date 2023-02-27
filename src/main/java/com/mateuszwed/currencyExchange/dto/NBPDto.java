@@ -1,9 +1,14 @@
 package com.mateuszwed.currencyExchange.dto;
-import lombok.Getter;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.util.List;
 
 @Getter
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
 public class NBPDto {
-    private List<NBPRateDto> rates;
-
+    List<NBPRateDto> rates;
 }
