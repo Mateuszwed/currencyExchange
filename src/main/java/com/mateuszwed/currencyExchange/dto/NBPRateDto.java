@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class CurrencyController {
-
     @ApiOperation("Method convert currency exchange")
     @PostMapping
     public ResponseEntity<ExchangeDto> currencyExchange(@RequestBody Exchange exchange) {

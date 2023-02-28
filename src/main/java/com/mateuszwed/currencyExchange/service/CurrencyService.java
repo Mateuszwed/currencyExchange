@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +19,14 @@ public class CurrencyService {
     NBPApiClient nbpApiClient;
     @NonFinal
     @Value("${nbp.api.url.table.a}")
-    private String NBP_TABLE_A;
+    String NbpTableA;
     @NonFinal
     @Value("${nbp.api.url.table.b}")
-    private String NBP_TABLE_B;
+    String NbpTableB;
     //Servis zaiplemenotwany tylko w celu sprawdzenia czy restTemplate zwraca całą listę walut.
     public List<NBPRateDto> getCurrency() {
-        List<NBPRateDto> nbpRateDtoList = nbpApiClient.getResponseFromNBPApi(NBP_TABLE_A);
-        nbpRateDtoList.addAll(nbpApiClient.getResponseFromNBPApi(NBP_TABLE_B));
+        List<NBPRateDto> nbpRateDtoList = nbpApiClient.getResponseFromNBPApi(NbpTableA);
+        nbpRateDtoList.addAll(nbpApiClient.getResponseFromNBPApi(NbpTableB));
         return nbpRateDtoList;
     }
 }
