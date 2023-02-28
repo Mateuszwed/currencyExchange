@@ -1,4 +1,4 @@
-package com.mateuszwed.currencyExchange.dto;
+package com.mateuszwed.currencyExchange.exception.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -6,9 +6,11 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 @Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ExchangeDto {
     BigDecimal amount;
     String fromCurrency;

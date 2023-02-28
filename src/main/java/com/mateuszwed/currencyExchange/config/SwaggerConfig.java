@@ -22,7 +22,7 @@ public class SwaggerConfig {
                 .version("1.0")
                 .contact(new Contact("Mateusz", "", "mateuszwed@o2.pl"))
                 .build();
-    }git
+    }
     @Bean
     public Docket swaggerApi() {
         return new Docket(DocumentationType.SWAGGER_2)
