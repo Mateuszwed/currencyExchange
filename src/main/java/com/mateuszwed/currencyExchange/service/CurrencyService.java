@@ -10,7 +10,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -23,15 +22,15 @@ public class CurrencyService {
     NBPApiClient nbpApiClient;
     @NonFinal
     @Value("${nbp.api.url.table.a}")
-    String NbpTableA;
+    String nbpTableA;
     @NonFinal
     @Value("${nbp.api.url.table.b}")
-    String NbpTableB;
+    String nbpTableB;
     String pln = "PLN";
 
     public ExchangeDto convertCurrency(Exchange exchange) {
-        var nbpRateList = nbpApiClient.getResponseFromNBPApi(NbpTableA);
-        nbpRateList.addAll(nbpApiClient.getResponseFromNBPApi(NbpTableB));
+        var nbpRateList = nbpApiClient.getResponseFromNBPApi(nbpTableA);
+        nbpRateList.addAll(nbpApiClient.getResponseFromNBPApi(nbpTableB));
         var fromCurrency = exchange.getFromCurrency().toUpperCase(Locale.ROOT);
         var toCurrency = exchange.getToCurrency().toUpperCase(Locale.ROOT);
         var amount = exchange.getAmount();
@@ -45,11 +44,10 @@ public class CurrencyService {
                 .build();
 
         // Zapis do bazy danych
-
         return exchangeDto;
     }
 
-    private BigDecimal convert(String fromCurrency, String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+    BigDecimal convert(String fromCurrency, String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         if( fromCurrency.equals(toCurrency) ) {
             return amount;
         }
@@ -63,7 +61,7 @@ public class CurrencyService {
         return convertToPln(fromCurrency, fromAmount, nbpRateList);
     }
 
-    private BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+    BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         return nbpRateList.stream()
                 .filter(rate -> rate.getCode().equals(toCurrency))
                 .findFirst()
@@ -71,7 +69,7 @@ public class CurrencyService {
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono kursu dla waluty " + toCurrency));
     }
 
-    private BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+    BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         return nbpRateList.stream().filter(rate -> rate.getCode().equals(fromCurrency))
                 .findFirst()
                 .map(rate -> amount.multiply(rate.getMid()))
