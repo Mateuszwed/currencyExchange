@@ -10,8 +10,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,8 +31,11 @@ public class CurrencyService {
     String pln = "PLN";
 
     public ExchangeDto convertCurrency(Exchange exchange) {
-        var nbpRateList = nbpApiClient.getResponseFromNBPApi(nbpTableA);
-        nbpRateList.addAll(nbpApiClient.getResponseFromNBPApi(nbpTableB));
+        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateListA = nbpApiClient.getResponseFromNBPApi(nbpTableA);
+        var nbpRateListB = nbpApiClient.getResponseFromNBPApi(nbpTableB);
+        nbpRateList.addAll(nbpRateListA);
+        nbpRateList.addAll(nbpRateListB);
         var fromCurrency = exchange.getFromCurrency().toUpperCase(Locale.ROOT);
         var toCurrency = exchange.getToCurrency().toUpperCase(Locale.ROOT);
         var amount = exchange.getAmount();
@@ -44,6 +49,7 @@ public class CurrencyService {
                 .build();
 
         // Zapis do bazy danych
+
         return exchangeDto;
     }
 
