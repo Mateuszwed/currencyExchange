@@ -1,4 +1,4 @@
-package com.mateuszwed.currencyExchange.exception.dto;
+package com.mateuszwed.currencyExchange.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

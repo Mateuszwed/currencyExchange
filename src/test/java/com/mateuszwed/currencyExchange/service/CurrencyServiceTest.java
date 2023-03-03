@@ -1,8 +1,8 @@
 package com.mateuszwed.currencyExchange.service;
 
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
-import com.mateuszwed.currencyExchange.exception.dto.ExchangeDto;
-import com.mateuszwed.currencyExchange.exception.dto.NBPRateDto;
+import com.mateuszwed.currencyExchange.dto.ExchangeDto;
+import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.model.Exchange;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package com.mateuszwed.currencyExchange.controller;
 
-import com.mateuszwed.currencyExchange.exception.dto.ExchangeDto;
+import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.Exchange;
 import com.mateuszwed.currencyExchange.service.CurrencyService;
 import io.swagger.annotations.ApiOperation;

@@ -1,8 +1,9 @@
 package com.mateuszwed.currencyExchange.client;
 
+import com.mateuszwed.currencyExchange.exception.EmptyListException;
 import com.mateuszwed.currencyExchange.exception.HttpException;
-import com.mateuszwed.currencyExchange.exception.dto.NBPDto;
-import com.mateuszwed.currencyExchange.exception.dto.NBPRateDto;
+import com.mateuszwed.currencyExchange.dto.NBPDto;
+import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,7 +49,7 @@ public class NBPApiClient {
                 .flatMap(Collection::stream)
                 .toList();
         if(rates.isEmpty()) {
-            throw new NullPointerException("List is empty");
+            throw new EmptyListException("List is empty");
         }
         return rates;
     }

@@ -1,8 +1,9 @@
 package com.mateuszwed.currencyExchange.client;
 
+import com.mateuszwed.currencyExchange.exception.EmptyListException;
 import com.mateuszwed.currencyExchange.exception.HttpException;
-import com.mateuszwed.currencyExchange.exception.dto.NBPDto;
-import com.mateuszwed.currencyExchange.exception.dto.NBPRateDto;
+import com.mateuszwed.currencyExchange.dto.NBPDto;
+import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -82,7 +83,7 @@ class NBPApiClientTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
         }))).thenReturn(responseEntity);
         //when , then
-        assertThatThrownBy( () -> nbpApiClient.getResponseFromNBPApi("table")).isInstanceOf(NullPointerException.class).hasMessage("List is empty");
+        assertThatThrownBy( () -> nbpApiClient.getResponseFromNBPApi("table")).isInstanceOf(EmptyListException.class).hasMessage("List is empty");
     }
 
     @Test
