@@ -3,6 +3,7 @@ package com.mateuszwed.currencyExchange.service;
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
+import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
 import com.mateuszwed.currencyExchange.model.Exchange;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class CurrencyService {
     @NonFinal
     @Value("${nbp.api.url.table.b}")
     String nbpTableB;
-    String pln = "PLN";
+
 
     public ExchangeDto convertCurrency(Exchange exchange) {
         List<NBPRateDto> nbpRateList = new ArrayList<>();
@@ -36,24 +36,23 @@ public class CurrencyService {
         var nbpRateListB = nbpApiClient.getResponseFromNBPApi(nbpTableB);
         nbpRateList.addAll(nbpRateListA);
         nbpRateList.addAll(nbpRateListB);
-        var fromCurrency = exchange.getFromCurrency().toUpperCase(Locale.ROOT);
-        var toCurrency = exchange.getToCurrency().toUpperCase(Locale.ROOT);
+        var fromCurrency = exchange.getFromCurrency().toUpperCase();
+        var toCurrency = exchange.getToCurrency().toUpperCase();
         var amount = exchange.getAmount();
+
         var convertedAmount = convert(fromCurrency, toCurrency, amount, nbpRateList);
 
-        ExchangeDto exchangeDto = ExchangeDto.builder()
-                .amount(amount)
-                .fromCurrency(fromCurrency)
-                .toCurrency(toCurrency)
-                .convertedAmount(convertedAmount)
-                .build();
+        //ExchangeDto exchangeDto = exchangeMapper.convertCurrency(exchange);
+
+        var exchangeDto = ExchangeDto.builder().amount(amount).fromCurrency(fromCurrency).toCurrency(toCurrency).convertedAmount(convertedAmount).build();
 
         // Zapis do bazy danych
 
         return exchangeDto;
     }
 
-    BigDecimal convert(String fromCurrency, String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+    private BigDecimal convert(String fromCurrency, String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+        var pln = "PLN";
         if( fromCurrency.equals(toCurrency) ) {
             return amount;
         }
@@ -67,18 +66,22 @@ public class CurrencyService {
         return convertToPln(fromCurrency, fromAmount, nbpRateList);
     }
 
-    BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+    private BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         return nbpRateList.stream()
-                .filter(rate -> rate.getCode().equals(toCurrency))
-                .findFirst()
-                .map(rate -> amount.divide(rate.getMid(), 2, RoundingMode.HALF_UP))
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono kursu dla waluty " + toCurrency));
+                .filter(rate -> rate.getCode()
+                        .equals(toCurrency))
+                .findFirst().map(rate -> amount.divide(rate.getMid(), 2, RoundingMode.HALF_UP))
+                .orElseThrow(() -> new NoCurrencyException("Nie znaleziono kursu dla waluty " + toCurrency));
     }
 
-    BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
-        return nbpRateList.stream().filter(rate -> rate.getCode().equals(fromCurrency))
+    private BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
+        return nbpRateList.stream()
+                .filter(rate -> rate.getCode().equals(fromCurrency))
                 .findFirst()
                 .map(rate -> amount.multiply(rate.getMid()))
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono kursu dla waluty " + fromCurrency));
+                .orElseThrow(() -> new NoCurrencyException("Nie znaleziono kursu dla waluty " + fromCurrency));
+    }
+    private ExchangeDto saveToDataBase(){
+        return null;
     }
 }

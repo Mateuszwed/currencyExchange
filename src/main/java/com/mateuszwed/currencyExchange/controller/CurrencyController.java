@@ -37,4 +37,9 @@ public class CurrencyController {
                 + exchangeDto.getConvertedAmount());
         return ResponseEntity.ok(exchangeDto);
     }
+
+    @PostMapping("/2")
+    public ExchangeDto currencyExchange2(@RequestBody Exchange exchange) {
+        return currencyService.convertCurrency(exchange);
+    }
 }
