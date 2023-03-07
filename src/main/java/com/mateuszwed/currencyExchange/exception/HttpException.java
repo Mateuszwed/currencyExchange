@@ -6,7 +6,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class HttpException extends HttpStatusCodeException {
-    public HttpException(String message) {
-        super(HttpStatus.valueOf(message));
+    public HttpException(HttpStatus status, String message) {
+        super(status, message);
     }
 }

@@ -1,6 +1,8 @@
 package com.mateuszwed.currencyExchange.exception;
 
-public class EmptyListException extends RuntimeException {
+import java.util.NoSuchElementException;
+
+public class EmptyListException extends NoSuchElementException {
     public EmptyListException(String message) {
         super(message);
     }

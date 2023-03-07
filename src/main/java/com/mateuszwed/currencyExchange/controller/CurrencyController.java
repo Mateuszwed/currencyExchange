@@ -2,7 +2,6 @@ package com.mateuszwed.currencyExchange.controller;
 
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.Exchange;
-import com.mateuszwed.currencyExchange.service.CurrencyService;
 import io.swagger.annotations.ApiOperation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class CurrencyController {
-    CurrencyService currencyService;
     @ApiOperation("Method convert currency exchange")
     @PostMapping
     public ResponseEntity<ExchangeDto> currencyExchange(@RequestBody Exchange exchange) {
@@ -36,10 +34,5 @@ public class CurrencyController {
                 + exchangeDto.getToCurrency() + " "
                 + exchangeDto.getConvertedAmount());
         return ResponseEntity.ok(exchangeDto);
-    }
-
-    @PostMapping("/2")
-    public ExchangeDto currencyExchange2(@RequestBody Exchange exchange) {
-        return currencyService.convertCurrency(exchange);
     }
 }

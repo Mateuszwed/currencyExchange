@@ -29,16 +29,16 @@ public class NBPApiClient {
 
     public List<NBPRateDto> getResponseFromNBPApi(String table) {
         ResponseEntity<List<NBPDto>> response;
-        HttpEntity<String> request = new HttpEntity<>(getHttpHeaders());
+        var request = new HttpEntity<>(getHttpHeaders());
         try {
             response = restTemplate.exchange(table, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
             });
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            throw new HttpException("Problem with call to NPB API");
+            throw new HttpException(e.getStatusCode(), "Problem with call to NPB API");
         }
-        List<NBPDto> nbpDtoOptional = Optional.ofNullable(response.getBody())
+        var nbpDtoOptional = Optional.ofNullable(response.getBody())
                 .orElseThrow(() -> new NullResponseException("Api response have null value"));
-        List<NBPRateDto> rates = nbpDtoOptional
+        var rates = nbpDtoOptional
                 .stream()
                 .flatMap(nbpDto -> nbpDto.getRates()
                         .stream())
@@ -49,8 +49,8 @@ public class NBPApiClient {
         return rates;
     }
 
-    public HttpHeaders getHttpHeaders() {
-        HttpHeaders headers = new HttpHeaders();
+    private HttpHeaders getHttpHeaders() {
+        var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
     }
