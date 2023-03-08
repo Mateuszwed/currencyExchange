@@ -8,7 +8,6 @@ import com.mateuszwed.currencyExchange.exception.NullResponseException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.java.Log;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Log
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class NBPApiClient {
@@ -38,12 +36,10 @@ public class NBPApiClient {
         }
         var nbpDtoOptional = Optional.ofNullable(response.getBody())
                 .orElseThrow(() -> new NullResponseException("Api response have null value"));
-        var rates = nbpDtoOptional
-                .stream()
-                .flatMap(nbpDto -> nbpDto.getRates()
-                        .stream())
+        var rates = nbpDtoOptional.stream()
+                .flatMap(nbpDto -> nbpDto.getRates().stream())
                 .collect(Collectors.toList());
-        if( rates.isEmpty() ) {
+        if (rates.isEmpty()) {
             throw new EmptyListException("List is empty");
         }
         return rates;

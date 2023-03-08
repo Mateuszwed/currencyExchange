@@ -86,7 +86,7 @@ class NBPApiClientTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
         }))).thenReturn(responseEntity);
 
-        //when , then
+        //when, then
         assertThatThrownBy(() -> nbpApiClient.getResponseFromNBPApi("table")).isInstanceOf(EmptyListException.class).hasMessage("List is empty");
     }
 

@@ -6,6 +6,7 @@ import com.mateuszwed.currencyExchange.dto.ExchangeMapper;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
 import com.mateuszwed.currencyExchange.model.Exchange;
+import com.mateuszwed.currencyExchange.model.ExchangeEntity;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,39 +32,38 @@ public class CurrencyService {
     @Value("${nbp.api.url.table.b}")
     String nbpTableB;
 
+    //@Transactional
     public ExchangeDto convertCurrency(Exchange exchange) {
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
-        var nbpRateListA = nbpApiClient.getResponseFromNBPApi(nbpTableA);
-        var nbpRateListB = nbpApiClient.getResponseFromNBPApi(nbpTableB);
-        nbpRateList.addAll(nbpRateListA);
-        nbpRateList.addAll(nbpRateListB);
+        var nbpRateList = getCurrencyFromApi();
         var fromCurrency = exchange.getFromCurrency().toUpperCase();
         var toCurrency = exchange.getToCurrency().toUpperCase();
         var amount = exchange.getAmount();
         var convertedAmount = calculateCurrencyAmount(fromCurrency, toCurrency, amount, nbpRateList);
-        var exchangeDto = exchangeMapper.exchangeToExchangeDto(exchange, convertedAmount);
-        // Zapis do bazy danych
-        // saveConvertedCurrencyToDataBase(exchangeDto);
-        return exchangeDto;
+        ExchangeEntity exchangeEntity = exchangeMapper.exchangeToExchangeEntity(exchange, convertedAmount);
+        //return exchangeMapper.exchangeEntityToExchangeDto(saveConvertedCurrencyToDataBase(exchangeEntity));
+        return null;
+    }
+
+    private List<NBPRateDto> getCurrencyFromApi(){
+        var nbpRateList = new ArrayList<NBPRateDto>();
+        var nbpRateListA = nbpApiClient.getResponseFromNBPApi(nbpTableA);
+        var nbpRateListB = nbpApiClient.getResponseFromNBPApi(nbpTableB);
+        nbpRateList.addAll(nbpRateListA);
+        nbpRateList.addAll(nbpRateListB);
+        return nbpRateList;
     }
 
     private BigDecimal calculateCurrencyAmount(String fromCurrency, String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         var pln = "PLN";
-        // jeśli waluta Z i NA są takie same
-        if( fromCurrency.equals(toCurrency) ) {
+        if(fromCurrency.equals(toCurrency)) {
             return amount;
         }
-        //jeśli waluta Z jest równa PLN
-        if( fromCurrency.equals(pln) ) {
+        if(fromCurrency.equals(pln)) {
             return convertFromPln(toCurrency, amount, nbpRateList);
         }
-        //jeśli waluta NA jest równa PLN
-        if( toCurrency.equals(pln) ) {
+        if(toCurrency.equals(pln)) {
             return convertToPln(fromCurrency, amount, nbpRateList);
         }
-        //jeśli obie waluty są różne od PLN
-        //convertFromPLN przelicza mi z dowolnej waluty na pln np. 50 eur na 200 pln
-        //convertToPLN przelicza mi np. 200 pln na dolary
         var fromAmount = convertFromPln(toCurrency, amount, nbpRateList);
         return convertToPln(fromCurrency, fromAmount, nbpRateList);
     }
@@ -73,7 +73,7 @@ public class CurrencyService {
                 .filter(rate -> rate.getCode().equals(toCurrency))
                 .findFirst()
                 .map(rate -> amount.divide(rate.getMid(), 2, RoundingMode.HALF_UP))
-                .orElseThrow(() -> new NoCurrencyException("Nie znaleziono kursu dla waluty " + toCurrency));
+                .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + toCurrency));
     }
 
     private BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
@@ -81,15 +81,11 @@ public class CurrencyService {
                 .filter(rate -> rate.getCode().equals(fromCurrency))
                 .findFirst()
                 .map(rate -> amount.multiply(rate.getMid()))
-                .orElseThrow(() -> new NoCurrencyException("Nie znaleziono kursu dla waluty " + fromCurrency));
+                .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
     }
-    /*
-    private void saveConvertedCurrencyToDataBase(ExchangeDto exchangeDto){
-        ExchangeEntity exchangeEntity = exchangeDtoToExchangeEntity(exchangeDto);
-        try{
-        exchangeRepository.save(exchangeEntity);
-        }catch(ConstraintViolationException e)
-        wyjatek
+   /*
+    private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity){
+        return exchangeRepository.save(exchangeEntity);
     }
     */
 }
