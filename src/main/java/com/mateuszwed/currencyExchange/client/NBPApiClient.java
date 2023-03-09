@@ -4,7 +4,7 @@ import com.mateuszwed.currencyExchange.dto.NBPDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.EmptyListException;
 import com.mateuszwed.currencyExchange.exception.HttpException;
-import com.mateuszwed.currencyExchange.exception.NullResponseException;
+import com.mateuszwed.currencyExchange.exception.NotFoundRatesException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,10 +35,10 @@ public class NBPApiClient {
             throw new HttpException(e.getStatusCode(), "Problem with call to NPB API");
         }
         var nbpDtoOptional = Optional.ofNullable(response.getBody())
-                .orElseThrow(() -> new NullResponseException("Api response have null value"));
+            .orElseThrow(() -> new NotFoundRatesException("Api response have null value"));
         var rates = nbpDtoOptional.stream()
-                .flatMap(nbpDto -> nbpDto.getRates().stream())
-                .collect(Collectors.toList());
+            .flatMap(nbpDto -> nbpDto.getRates().stream())
+            .collect(Collectors.toList());
         if (rates.isEmpty()) {
             throw new EmptyListException("List is empty");
         }

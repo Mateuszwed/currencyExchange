@@ -1,11 +1,11 @@
 package com.mateuszwed.currencyExchange.service;
 
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
-import com.mateuszwed.currencyExchange.dto.ExchangeDto;
+import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.ExchangeMapper;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
-import com.mateuszwed.currencyExchange.model.Exchange;
+import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.ExchangeEntity;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class CurrencyService {
     String nbpTableB;
 
     //@Transactional
-    public ExchangeDto convertCurrency(Exchange exchange) {
+    public ExchangeRateDto convertCurrency(ExchangeDto exchange) {
         var nbpRateList = getCurrencyFromApi();
         var fromCurrency = exchange.getFromCurrency().toUpperCase();
         var toCurrency = exchange.getToCurrency().toUpperCase();
@@ -44,7 +44,7 @@ public class CurrencyService {
         return null;
     }
 
-    private List<NBPRateDto> getCurrencyFromApi(){
+    private List<NBPRateDto> getCurrencyFromApi() {
         var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateListA = nbpApiClient.getResponseFromNBPApi(nbpTableA);
         var nbpRateListB = nbpApiClient.getResponseFromNBPApi(nbpTableB);
@@ -55,13 +55,13 @@ public class CurrencyService {
 
     private BigDecimal calculateCurrencyAmount(String fromCurrency, String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         var pln = "PLN";
-        if(fromCurrency.equals(toCurrency)) {
+        if (fromCurrency.equals(toCurrency)) {
             return amount;
         }
-        if(fromCurrency.equals(pln)) {
+        if (fromCurrency.equals(pln)) {
             return convertFromPln(toCurrency, amount, nbpRateList);
         }
-        if(toCurrency.equals(pln)) {
+        if (toCurrency.equals(pln)) {
             return convertToPln(fromCurrency, amount, nbpRateList);
         }
         var fromAmount = convertFromPln(toCurrency, amount, nbpRateList);
@@ -69,19 +69,20 @@ public class CurrencyService {
     }
 
     private BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
-        return nbpRateList.stream()
-                .filter(rate -> rate.getCode().equals(toCurrency))
-                .findFirst()
-                .map(rate -> amount.divide(rate.getMid(), 2, RoundingMode.HALF_UP))
-                .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + toCurrency));
+        var averageExchangeRate = nbpRateList.stream()
+            .filter(rate -> rate.getCode().equals(toCurrency))
+            .map(NBPRateDto::getMid).findFirst()
+            .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + toCurrency));
+        return averageExchangeRate.divide(amount, 2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
-        return nbpRateList.stream()
-                .filter(rate -> rate.getCode().equals(fromCurrency))
-                .findFirst()
-                .map(rate -> amount.multiply(rate.getMid()))
-                .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
+        var averageExchangeRate = nbpRateList.stream()
+            .filter(rate -> rate.getCode().equals(fromCurrency))
+            .map(NBPRateDto::getMid)
+            .findFirst()
+            .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
+        return averageExchangeRate.multiply(amount);
     }
    /*
     private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity){

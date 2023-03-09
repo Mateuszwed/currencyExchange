@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Setter
 @Builder
 public class ExchangeEntity {
-    int id;
+    Long id;
     BigDecimal amount;
     String fromCurrency;
     String toCurrency;

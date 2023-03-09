@@ -13,19 +13,22 @@ public class CurrencyExceptionHandler {
         log.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body("Problem with call to NPB API");
     }
+
     @ExceptionHandler(value = EmptyListException.class)
     public ResponseEntity<String> handleEmptyListException(EmptyListException e) {
         log.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body("List with Data is empty");
     }
-    @ExceptionHandler(value = NullResponseException.class)
-    public ResponseEntity<String> handleNullResponseException(NullResponseException e) {
+
+    @ExceptionHandler(value = NotFoundRatesException.class)
+    public ResponseEntity<String> handleNullResponseException(NotFoundRatesException e) {
         log.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body("Response is null");
     }
+
     @ExceptionHandler(value = NoCurrencyException.class)
     public ResponseEntity<String> handleNoCurrencyException(NoCurrencyException e) {
         log.error(e.getMessage(), e);
-        return  ResponseEntity.badRequest().body("This currency does not exist");
+        return ResponseEntity.badRequest().body("This currency does not exist");
     }
 }

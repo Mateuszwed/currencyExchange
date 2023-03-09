@@ -14,23 +14,23 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class SwaggerConfig {
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Currency exchange")
-                .description("This API is used to convert any currency available in the NBP API")
-                .license("Apache 2.0")
-                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
-                .termsOfServiceUrl("")
-                .version("1.0")
-                .contact(new Contact("Mateusz", "", "mateuszwed@o2.pl"))
-                .build();
+            .title("Currency exchange")
+            .description("This API is used to convert any currency available in the NBP API")
+            .license("Apache 2.0")
+            .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+            .termsOfServiceUrl("")
+            .version("1.0")
+            .contact(new Contact("Mateusz", "", "mateuszwed@o2.pl"))
+            .build();
     }
 
     @Bean
     public Docket swaggerApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.mateuszwed.currencyExchange.controller"))
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(apiInfo());
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("com.mateuszwed.currencyExchange.controller"))
+            .paths(PathSelectors.any())
+            .build()
+            .apiInfo(apiInfo());
     }
 }
