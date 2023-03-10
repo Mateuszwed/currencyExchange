@@ -1,7 +1,7 @@
 package com.mateuszwed.currencyExchange.controller;
 
+import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
-import com.mateuszwed.currencyExchange.model.Exchange;
 import io.swagger.annotations.ApiOperation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +23,16 @@ import java.math.BigDecimal;
 public class CurrencyController {
     @ApiOperation("Method convert currency exchange")
     @PostMapping
-    public ResponseEntity<ExchangeDto> currencyExchange(@RequestBody Exchange exchange) {
-        ExchangeDto exchangeDto = new ExchangeDto(exchange.getAmount(),
-                exchange.getFromCurrency(),
-                exchange.getToCurrency(),
-                exchange.getAmount().multiply(new BigDecimal(2)));
+    public ResponseEntity<ExchangeRateDto> currencyExchange(@RequestBody ExchangeDto exchangeDto) {
+        ExchangeRateDto exchangeRateDto = new ExchangeRateDto(exchangeDto.getAmount(),
+            exchangeDto.getFromCurrency(),
+            exchangeDto.getToCurrency(),
+            exchangeDto.getAmount().multiply(new BigDecimal(2)));
         log.info("Create exchange: "
-                + exchangeDto.getAmount() + " "
-                + exchangeDto.getFromCurrency() + " "
-                + exchangeDto.getToCurrency() + " "
-                + exchangeDto.getConvertedAmount());
-        return ResponseEntity.ok(exchangeDto);
+            + exchangeRateDto.getAmount() + " "
+            + exchangeRateDto.getFromCurrency() + " "
+            + exchangeRateDto.getToCurrency() + " "
+            + exchangeRateDto.getConvertedAmount());
+        return ResponseEntity.ok(exchangeRateDto);
     }
 }

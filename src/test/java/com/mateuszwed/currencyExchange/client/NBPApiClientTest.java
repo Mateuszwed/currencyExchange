@@ -2,6 +2,7 @@ package com.mateuszwed.currencyExchange.client;
 
 import com.mateuszwed.currencyExchange.dto.NBPDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
+import com.mateuszwed.currencyExchange.exception.EmptyListException;
 import com.mateuszwed.currencyExchange.exception.HttpException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,39 +22,33 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NBPApiClientTest {
-
     @Mock
     RestTemplate restTemplate;
-
     @InjectMocks
     NBPApiClient nbpApiClient;
 
     @Test
     void methodGetResponseFromNBPApiShouldBeReturnListOfNBPRateDtoAndStatusCode200() {
         // given
-        NBPDto nbpDto = new NBPDto();
-        NBPRateDto nbpRateDto = new NBPRateDto();
-        nbpRateDto.setCode("USD");
-        nbpRateDto.setMid(new BigDecimal("3.5"));
-        nbpDto.setRates(List.of(nbpRateDto));
-        ResponseEntity<List<NBPDto>> responseEntity = new ResponseEntity<>(List.of(nbpDto), HttpStatus.OK);
+        var nbpRateDto = new NBPRateDto("", "USD", new BigDecimal("3.5"));
+        var nbpDto = new NBPDto(List.of(nbpRateDto));
+        var responseEntity = new ResponseEntity<>(List.of(nbpDto), HttpStatus.OK);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
         }))).thenReturn(responseEntity);
 
         // when
-        List<NBPRateDto> result = nbpApiClient.getResponseFromNBPApi("table");
+        var result = nbpApiClient.getResponseFromNBPApi("table");
 
         // then
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getCode()).isEqualTo("USD");
-        assertThat(result.get(0).getMid()).isEqualTo("3.5");
         assertThat(result).hasSize(1);
+        assertThat(result.get(0).getCode()).isEqualTo("USD");
+        assertThat(result.get(0).getMid()).isEqualTo(new BigDecimal("3.5"));
         verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
         }));
     }
@@ -61,7 +56,7 @@ class NBPApiClientTest {
     @Test
     void wrongUrlFromClientShouldBeReturnThrowHttpExceptionWithStatusCode404() {
         // given
-        HttpClientErrorException httpClientErrorException = new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        var httpClientErrorException = new HttpClientErrorException(HttpStatus.NOT_FOUND);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
         }))).thenThrow(httpClientErrorException);
 
@@ -74,7 +69,7 @@ class NBPApiClientTest {
     @Test
     void wrongDataFromServerShouldBeReturnThrowHttpExceptionWithStatusCode500() {
         // given
-        HttpServerErrorException httpServerErrorException = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        var httpServerErrorException = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
         }))).thenThrow(httpServerErrorException);
 
@@ -85,15 +80,24 @@ class NBPApiClientTest {
     }
 
     @Test
-    void whenMethodReturnEmptyListShouldBeThrowNullPointerException(){
+    void whenMethodReturnEmptyListShouldBeThrowNullPointerException() {
         //given
-        List<NBPDto> nbpDtoList = null;
-        ResponseEntity<List<NBPDto>> responseEntity = new ResponseEntity<>(nbpDtoList, HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(responseEntity);
+        var responseEntity = ResponseEntity.ok(List.of(new NBPDto(List.of())));
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
+        }))).thenReturn(responseEntity);
 
-        Throwable thrown = catchThrowable(() -> nbpApiClient.getResponseFromNBPApi("table"));
+        //when, then
+        assertThatThrownBy(() -> nbpApiClient.getResponseFromNBPApi("table")).isInstanceOf(EmptyListException.class).hasMessage("List is empty");
+    }
 
-        assertThat(thrown).isInstanceOf(RuntimeException.class);
-        assertThat(thrown.getMessage()).isEqualTo("Method getResponseFromNBPApi return empty list");
+    @Test
+    void whenRequestReturnNullThenThrowsNullPointerException() {
+        //given
+        ResponseEntity<List<NBPDto>> responseEntity = ResponseEntity.ok(null);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(new ParameterizedTypeReference<List<NBPDto>>() {
+        }))).thenReturn(responseEntity);
+
+        //when, then
+        assertThatThrownBy(() -> nbpApiClient.getResponseFromNBPApi("table")).isInstanceOf(NullPointerException.class).hasMessage("Api response have null value");
     }
 }
