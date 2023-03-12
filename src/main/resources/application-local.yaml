@@ -1,0 +1,9 @@
+spring:
+  h2.console:
+    enabled: true
+    path: '/console'
+  datasource:
+    url: 'jdbc:h2:file:/Users/mateu/Desktop/Java/currencyExchange/exchange-db'
+  jpa:
+    hibernate:
+      ddl-auto: none

@@ -7,12 +7,14 @@ import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.ExchangeEntity;
+import com.mateuszwed.currencyExchange.model.ExchangeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,6 +27,7 @@ import java.util.List;
 public class CurrencyService {
     NBPApiClient nbpApiClient;
     ExchangeMapper exchangeMapper;
+    ExchangeRepository exchangeRepository;
     @NonFinal
     @Value("${nbp.api.url.table.a}")
     String nbpTableA;
@@ -32,7 +35,7 @@ public class CurrencyService {
     @Value("${nbp.api.url.table.b}")
     String nbpTableB;
 
-    //@Transactional
+    @Transactional
     public ExchangeRateDto convertCurrency(ExchangeDto exchange) {
         var nbpRateList = getCurrencyFromApi();
         var fromCurrency = exchange.getFromCurrency().toUpperCase();
@@ -40,8 +43,7 @@ public class CurrencyService {
         var amount = exchange.getAmount();
         var convertedAmount = calculateCurrencyAmount(fromCurrency, toCurrency, amount, nbpRateList);
         ExchangeEntity exchangeEntity = exchangeMapper.exchangeToExchangeEntity(exchange, convertedAmount);
-        //return exchangeMapper.exchangeEntityToExchangeDto(saveConvertedCurrencyToDataBase(exchangeEntity));
-        return null;
+        return exchangeMapper.exchangeEntityToExchangeDto(saveConvertedCurrencyToDataBase(exchangeEntity));
     }
 
     private List<NBPRateDto> getCurrencyFromApi() {
@@ -71,9 +73,10 @@ public class CurrencyService {
     private BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         var averageExchangeRate = nbpRateList.stream()
             .filter(rate -> rate.getCode().equals(toCurrency))
-            .map(NBPRateDto::getMid).findFirst()
+            .map(NBPRateDto::getMid)
+            .findFirst()
             .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + toCurrency));
-        return averageExchangeRate.divide(amount, 2, RoundingMode.HALF_UP);
+        return amount.divide(averageExchangeRate, 2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
@@ -84,9 +87,8 @@ public class CurrencyService {
             .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
         return averageExchangeRate.multiply(amount);
     }
-   /*
-    private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity){
+
+    private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity) {
         return exchangeRepository.save(exchangeEntity);
     }
-    */
 }

@@ -12,6 +12,5 @@ public interface ExchangeMapper {
     @Mapping(source = "convertedAmount", target = "convertedAmount")
     ExchangeEntity exchangeToExchangeEntity(ExchangeDto exchange, BigDecimal convertedAmount);
 
-    @Mapping(target = "id", ignore = true)
     ExchangeRateDto exchangeEntityToExchangeDto(ExchangeEntity exchangeEntity);
 }
