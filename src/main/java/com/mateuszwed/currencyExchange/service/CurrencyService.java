@@ -1,11 +1,16 @@
 package com.mateuszwed.currencyExchange.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
-import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
+import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.dto.ExchangeMapper;
+import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
-import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.ExchangeEntity;
 import com.mateuszwed.currencyExchange.model.ExchangeRepository;
 import lombok.AccessLevel;
@@ -15,11 +20,6 @@ import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class CurrencyService {
         var toCurrency = exchange.getToCurrency().toUpperCase();
         var amount = exchange.getAmount();
         var convertedAmount = calculateCurrencyAmount(fromCurrency, toCurrency, amount, nbpRateList);
-        ExchangeEntity exchangeEntity = exchangeMapper.exchangeToExchangeEntity(exchange, convertedAmount);
+        var exchangeEntity = exchangeMapper.exchangeToExchangeEntity(exchange, convertedAmount);
         return exchangeMapper.exchangeEntityToExchangeDto(saveConvertedCurrencyToDataBase(exchangeEntity));
     }
 
@@ -85,7 +85,7 @@ public class CurrencyService {
             .map(NBPRateDto::getMid)
             .findFirst()
             .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
-        return averageExchangeRate.multiply(amount);
+        return averageExchangeRate.multiply(amount).setScale(2, RoundingMode.HALF_UP);
     }
 
     private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity) {

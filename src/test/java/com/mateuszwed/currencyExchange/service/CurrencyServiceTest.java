@@ -1,11 +1,18 @@
 package com.mateuszwed.currencyExchange.service;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
-import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
+import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.dto.ExchangeMapper;
+import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
-import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.model.ExchangeEntity;
 import com.mateuszwed.currencyExchange.model.ExchangeRepository;
 import org.junit.jupiter.api.Test;
@@ -13,14 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CurrencyServiceTest {
@@ -41,7 +40,7 @@ class CurrencyServiceTest {
             .toCurrency("EUR")
             .amount(BigDecimal.valueOf(100))
             .build();
-        var convertedAmount = new BigDecimal("88.880");
+        var convertedAmount = new BigDecimal("88.88");
         var exchangeEntity = ExchangeEntity.builder()
             .fromCurrency("USD")
             .toCurrency("EUR")
@@ -54,7 +53,7 @@ class CurrencyServiceTest {
             .amount(BigDecimal.valueOf(100))
             .convertedAmount(convertedAmount)
             .build();
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateDto = new NBPRateDto("Dolar", "USD", BigDecimal.valueOf(4.0));
         var nbpRateDto1 = new NBPRateDto("Euro", "EUR", BigDecimal.valueOf(4.5));
         nbpRateList.add(nbpRateDto);
@@ -72,7 +71,7 @@ class CurrencyServiceTest {
         assertThat(result.getFromCurrency()).isEqualTo("USD");
         assertThat(result.getToCurrency()).isEqualTo("EUR");
         assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(result.getConvertedAmount()).isEqualByComparingTo(BigDecimal.valueOf(88.880));
+        assertThat(result.getConvertedAmount()).isEqualByComparingTo(BigDecimal.valueOf(88.88));
     }
 
     @Test
@@ -96,7 +95,7 @@ class CurrencyServiceTest {
             .amount(BigDecimal.valueOf(100))
             .convertedAmount(convertedAmount)
             .build();
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateDto = new NBPRateDto("Dolar", "USD", BigDecimal.valueOf(4.0));
         var nbpRateDto1 = new NBPRateDto("Euro", "EUR", BigDecimal.valueOf(4.5));
         nbpRateList.add(nbpRateDto);
@@ -138,7 +137,7 @@ class CurrencyServiceTest {
             .amount(BigDecimal.valueOf(100))
             .convertedAmount(convertedAmount)
             .build();
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateDto = new NBPRateDto("Dolar", "USD", BigDecimal.valueOf(4.0));
         var nbpRateDto1 = new NBPRateDto("Euro", "EUR", BigDecimal.valueOf(4.5));
         nbpRateList.add(nbpRateDto);
@@ -167,7 +166,7 @@ class CurrencyServiceTest {
             .toCurrency("PLN")
             .amount(BigDecimal.valueOf(100))
             .build();
-        var convertedAmount = new BigDecimal("450.0");
+        var convertedAmount = new BigDecimal("450.00");
         var exchangeEntity = ExchangeEntity.builder()
             .fromCurrency("EUR")
             .toCurrency("PLN")
@@ -180,7 +179,7 @@ class CurrencyServiceTest {
             .amount(BigDecimal.valueOf(100))
             .convertedAmount(convertedAmount)
             .build();
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateDto = new NBPRateDto("Dolar", "USD", BigDecimal.valueOf(4.0));
         var nbpRateDto1 = new NBPRateDto("Euro", "EUR", BigDecimal.valueOf(4.5));
         nbpRateList.add(nbpRateDto);
@@ -198,13 +197,14 @@ class CurrencyServiceTest {
         assertThat(result.getFromCurrency()).isEqualTo("EUR");
         assertThat(result.getToCurrency()).isEqualTo("PLN");
         assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(result.getConvertedAmount()).isEqualByComparingTo(BigDecimal.valueOf(450.0));
+        assertThat(result.getConvertedAmount()).isEqualByComparingTo(BigDecimal.valueOf(450.00));
     }
 
     @Test
     void ifToCurrencyNoFoundShouldBeReturnNoCurrencyException() {
+        //given
         var exchange = ExchangeDto.builder().fromCurrency("EUR").toCurrency("waluta").amount(BigDecimal.valueOf(100)).build();
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateDto = new NBPRateDto("Dolar", "USD", BigDecimal.valueOf(4.0));
         var nbpRateDto1 = new NBPRateDto("Euro", "EUR", BigDecimal.valueOf(4.5));
         nbpRateList.add(nbpRateDto);
@@ -217,8 +217,9 @@ class CurrencyServiceTest {
 
     @Test
     void ifFromCurrencyNoFoundShouldBeReturnNoCurrencyException() {
+        //given
         var exchange = ExchangeDto.builder().fromCurrency("Waluta").toCurrency("EUR").amount(BigDecimal.valueOf(100)).build();
-        List<NBPRateDto> nbpRateList = new ArrayList<>();
+        var nbpRateList = new ArrayList<NBPRateDto>();
         var nbpRateDto = new NBPRateDto("Dolar", "USD", BigDecimal.valueOf(4.0));
         var nbpRateDto1 = new NBPRateDto("Euro", "EUR", BigDecimal.valueOf(4.5));
         nbpRateList.add(nbpRateDto);

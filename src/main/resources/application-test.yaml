@@ -3,7 +3,8 @@ spring:
     enabled: true
     path: '/console'
   datasource:
-    url: 'jdbc:h2:file:/Users/mateu/Desktop/Java/currencyExchange/exchange-db'
+    url: 'jdbc:h2:mem:testdb'
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: none

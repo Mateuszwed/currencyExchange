@@ -1,0 +1,16 @@
+version: '3'
+services:
+    api:
+      container_name: 'currency-exchange'
+      build: .
+      ports:
+        - "8080:8080"
+    database:
+      container_name: 'currency-exchange-db'
+      image: postgres
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_PASSWORD: password
+        POSTGRES_USER: currency
+        POSTGRES_DB: currency_exchange
