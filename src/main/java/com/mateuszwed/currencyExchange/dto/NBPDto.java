@@ -1,9 +1,9 @@
 package com.mateuszwed.currencyExchange.dto;
 
+import java.util.List;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Getter
 @Setter

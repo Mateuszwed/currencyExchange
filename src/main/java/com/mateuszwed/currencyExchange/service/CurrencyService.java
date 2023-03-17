@@ -7,12 +7,10 @@ import java.util.List;
 
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
-import com.mateuszwed.currencyExchange.dto.ExchangeMapper;
 import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
-import com.mateuszwed.currencyExchange.model.ExchangeEntity;
-import com.mateuszwed.currencyExchange.model.ExchangeRepository;
+import com.mateuszwed.currencyExchange.repository.ExchangeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,10 +38,11 @@ public class CurrencyService {
         var nbpRateList = getCurrencyFromApi();
         var fromCurrency = exchange.getFromCurrency().toUpperCase();
         var toCurrency = exchange.getToCurrency().toUpperCase();
-        var amount = exchange.getAmount();
+        var amount = exchange.getAmount().setScale(2, RoundingMode.HALF_UP);
+        exchange.setAmount(amount);
         var convertedAmount = calculateCurrencyAmount(fromCurrency, toCurrency, amount, nbpRateList);
-        var exchangeEntity = exchangeMapper.exchangeToExchangeEntity(exchange, convertedAmount);
-        return exchangeMapper.exchangeEntityToExchangeDto(saveConvertedCurrencyToDataBase(exchangeEntity));
+        var exchangeEntity = exchangeMapper.toEntity(exchange, convertedAmount);
+        return exchangeMapper.toDto(exchangeRepository.save(exchangeEntity));
     }
 
     private List<NBPRateDto> getCurrencyFromApi() {
@@ -86,9 +85,5 @@ public class CurrencyService {
             .findFirst()
             .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
         return averageExchangeRate.multiply(amount).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity) {
-        return exchangeRepository.save(exchangeEntity);
     }
 }

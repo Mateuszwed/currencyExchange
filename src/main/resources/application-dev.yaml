@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://database:5432/currency_exchange
-    username: currency
-    password: password
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
   jpa:
     hibernate:
       ddl-auto: none
