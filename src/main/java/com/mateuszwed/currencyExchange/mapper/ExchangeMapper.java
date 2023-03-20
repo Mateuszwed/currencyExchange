@@ -1,4 +1,4 @@
-package com.mateuszwed.currencyExchange.service;
+package com.mateuszwed.currencyExchange.mapper;
 
 import java.math.BigDecimal;
 

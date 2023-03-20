@@ -10,10 +10,10 @@
     <changeSet id="1" author="mateuszwed">
         <createTable tableName="exchanges">
             <column name="id" type="bigint" autoIncrement="true"/>
-            <column name="amount" type="numeric"/>
+            <column name="amount" type="numeric(10,2)"/>
             <column name="from_currency" type="varchar(255)"/>
             <column name="to_currency" type="varchar(255)"/>
-            <column name="converted_amount" type="numeric"/>
+            <column name="converted_amount" type="numeric(10,2)"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

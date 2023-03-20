@@ -18,6 +18,7 @@ public class ExchangeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    @Column(precision = 10, scale = 2)
     BigDecimal amount;
     String fromCurrency;
     String toCurrency;

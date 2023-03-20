@@ -13,6 +13,7 @@ import com.mateuszwed.currencyExchange.dto.ExchangeDto;
 import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
+import com.mateuszwed.currencyExchange.mapper.ExchangeMapper;
 import com.mateuszwed.currencyExchange.model.ExchangeEntity;
 import com.mateuszwed.currencyExchange.repository.ExchangeRepository;
 import org.junit.jupiter.api.Test;

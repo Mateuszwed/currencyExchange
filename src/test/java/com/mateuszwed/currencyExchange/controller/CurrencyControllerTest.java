@@ -1,16 +1,15 @@
 package com.mateuszwed.currencyExchange.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
+import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.repository.ExchangeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,17 +35,21 @@ class CurrencyControllerTest {
     void postCorrectedExchangeShouldBeSaveConvertedExchangeToDBAndReturnStatus200() throws Exception {
         //given, when
         var exchangeDto = buildCorrectedExampleDto();
-        mockMvc.perform(post("/exchanges")
+        MvcResult result = mockMvc.perform(post("/exchanges")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(exchangeDto))
                 .characterEncoding("utf-8"))
             .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.amount").value(exchangeDto.getAmount()))
-            .andExpect(jsonPath("$.fromCurrency", equalTo(exchangeDto.getFromCurrency())))
-            .andExpect(jsonPath("$.toCurrency", equalTo(exchangeDto.getToCurrency())))
-            .andExpect(jsonPath("$.convertedAmount", is(not(empty()))))
             .andReturn();
+        String json = result.getResponse().getContentAsString();
+        ExchangeRateDto exchangeRateDto = objectMapper.readValue(json, ExchangeRateDto.class);
+
+        //then
+        assertThat(exchangeRateDto.getAmount()).isEqualTo(BigDecimal.valueOf(20.0));
+        assertThat(exchangeRateDto.getFromCurrency()).isEqualTo("PLN");
+        assertThat(exchangeRateDto.getToCurrency()).isEqualTo("USD");
+        assertThat(exchangeRateDto.getConvertedAmount()).isNotNull();
+
     }
 
     @Test
