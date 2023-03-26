@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,21 +34,20 @@ class CurrencyControllerTest {
     void postCorrectedExchangeShouldBeSaveConvertedExchangeToDBAndReturnStatus200() throws Exception {
         //given, when
         var exchangeDto = buildCorrectedExampleDto();
-        MvcResult result = mockMvc.perform(post("/exchanges")
+        var result = mockMvc.perform(post("/exchanges")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(exchangeDto))
                 .characterEncoding("utf-8"))
             .andDo(print())
             .andReturn();
-        String json = result.getResponse().getContentAsString();
-        ExchangeRateDto exchangeRateDto = objectMapper.readValue(json, ExchangeRateDto.class);
+        var json = result.getResponse().getContentAsString();
+        var exchangeRateDto = objectMapper.readValue(json, ExchangeRateDto.class);
 
         //then
         assertThat(exchangeRateDto.getAmount()).isEqualTo(BigDecimal.valueOf(20.0));
         assertThat(exchangeRateDto.getFromCurrency()).isEqualTo("PLN");
         assertThat(exchangeRateDto.getToCurrency()).isEqualTo("USD");
         assertThat(exchangeRateDto.getConvertedAmount()).isNotNull();
-
     }
 
     @Test
