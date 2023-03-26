@@ -12,7 +12,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration
 public class SwaggerConfig {
-    ApiInfo apiInfo() {
+    public ApiInfo apiInfo() {
         return new ApiInfoBuilder()
             .title("Currency exchange")
             .description("This API is used to convert any currency available in the NBP API")

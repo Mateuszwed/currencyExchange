@@ -1,9 +1,9 @@
 package com.mateuszwed.currencyExchange.dto;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.math.BigDecimal;
 
 @Getter
 @Setter

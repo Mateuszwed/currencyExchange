@@ -1,23 +1,25 @@
 package com.mateuszwed.currencyExchange.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mateuszwed.currencyExchange.client.NBPApiClient;
-import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
-import com.mateuszwed.currencyExchange.dto.ExchangeMapper;
-import com.mateuszwed.currencyExchange.dto.NBPRateDto;
-import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
 import com.mateuszwed.currencyExchange.dto.ExchangeDto;
-import com.mateuszwed.currencyExchange.model.ExchangeEntity;
+import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
+import com.mateuszwed.currencyExchange.dto.NBPRateDto;
+import com.mateuszwed.currencyExchange.exception.ExchangeAmountTooLongException;
+import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
+import com.mateuszwed.currencyExchange.mapper.ExchangeMapper;
+import com.mateuszwed.currencyExchange.repository.ExchangeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ import java.util.List;
 public class CurrencyService {
     NBPApiClient nbpApiClient;
     ExchangeMapper exchangeMapper;
+    ExchangeRepository exchangeRepository;
     @NonFinal
     @Value("${nbp.api.url.table.a}")
     String nbpTableA;
@@ -32,16 +35,18 @@ public class CurrencyService {
     @Value("${nbp.api.url.table.b}")
     String nbpTableB;
 
-    //@Transactional
+    @Transactional
     public ExchangeRateDto convertCurrency(ExchangeDto exchange) {
+        if(exchange.getAmount().scale() > 2){
+            throw new ExchangeAmountTooLongException("The amount cannot have more than two decimal places");
+        }
         var nbpRateList = getCurrencyFromApi();
         var fromCurrency = exchange.getFromCurrency().toUpperCase();
         var toCurrency = exchange.getToCurrency().toUpperCase();
-        var amount = exchange.getAmount();
+        var amount = exchange.getAmount().setScale(2, RoundingMode.HALF_UP);
         var convertedAmount = calculateCurrencyAmount(fromCurrency, toCurrency, amount, nbpRateList);
-        ExchangeEntity exchangeEntity = exchangeMapper.exchangeToExchangeEntity(exchange, convertedAmount);
-        //return exchangeMapper.exchangeEntityToExchangeDto(saveConvertedCurrencyToDataBase(exchangeEntity));
-        return null;
+        var exchangeEntity = exchangeMapper.toEntity(exchange, convertedAmount);
+        return exchangeMapper.toDto(exchangeRepository.save(exchangeEntity));
     }
 
     private List<NBPRateDto> getCurrencyFromApi() {
@@ -71,9 +76,10 @@ public class CurrencyService {
     private BigDecimal convertFromPln(String toCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
         var averageExchangeRate = nbpRateList.stream()
             .filter(rate -> rate.getCode().equals(toCurrency))
-            .map(NBPRateDto::getMid).findFirst()
+            .map(NBPRateDto::getMid)
+            .findFirst()
             .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + toCurrency));
-        return averageExchangeRate.divide(amount, 2, RoundingMode.HALF_UP);
+        return amount.divide(averageExchangeRate, 2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal convertToPln(String fromCurrency, BigDecimal amount, List<NBPRateDto> nbpRateList) {
@@ -82,11 +88,6 @@ public class CurrencyService {
             .map(NBPRateDto::getMid)
             .findFirst()
             .orElseThrow(() -> new NoCurrencyException("Currency rate not found " + fromCurrency));
-        return averageExchangeRate.multiply(amount);
+        return averageExchangeRate.multiply(amount).setScale(2, RoundingMode.HALF_UP);
     }
-   /*
-    private ExchangeEntity saveConvertedCurrencyToDataBase(ExchangeEntity exchangeEntity){
-        return exchangeRepository.save(exchangeEntity);
-    }
-    */
 }

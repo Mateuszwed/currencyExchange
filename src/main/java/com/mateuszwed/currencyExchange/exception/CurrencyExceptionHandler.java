@@ -31,4 +31,10 @@ public class CurrencyExceptionHandler {
         log.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body("This currency does not exist");
     }
+
+    @ExceptionHandler(value = ExchangeAmountTooLongException.class)
+    public ResponseEntity<String> handleExchangeAmountTooLongException(ExchangeAmountTooLongException e) {
+        log.error(e.getMessage(), e);
+        return ResponseEntity.badRequest().body("The amount cannot have more than two decimal places");
+    }
 }

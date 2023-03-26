@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
+      http://www.liquibase.org/xml/ns/pro
+      http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd">
+
+    <changeSet id="1" author="mateuszwed">
+        <createTable tableName="exchanges">
+            <column name="id" type="bigint" autoIncrement="true"/>
+            <column name="amount" type="numeric(10,2)"/>
+            <column name="from_currency" type="varchar(255)"/>
+            <column name="to_currency" type="varchar(255)"/>
+            <column name="converted_amount" type="numeric(10,2)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

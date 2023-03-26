@@ -1,0 +1,19 @@
+version: '3'
+services:
+    api:
+      container_name: 'currency-exchange'
+      build: .
+      ports:
+        - "8080:8080"
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/currency_exchange
+        SPRING_PROFILES_ACTIVE: dev
+    database:
+      container_name: 'currency-exchange-db'
+      image: postgres
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: currency_exchange
