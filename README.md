@@ -1,6 +1,6 @@
 # Currency Exchange
 <h3>PL</h3>
-<b>aplikacja napisana w Javie, umożliwiająca przeliczanie kwoty waluty
+<b>Aplikacja napisana w Javie, umożliwiająca przeliczanie kwoty waluty
 na dowolną inną walutę przy użyciu kursów pobranych z Narodowego Banku Polskiego za
 pośrednictwem API, korzystająca z technologii Spring Boot, Hibernate i REST oraz testów
 jednostkowych przy użyciu JUnit i bazy H2 podczas testów oraz PostgreSQL w
@@ -36,6 +36,41 @@ testing and PostgreSQL in a production environment.</b>
 - Docker
 - REST
 </b>
+
+<br></br>
+<b>Swagger:</b>
+```
+/swagger-ui/index.html#
+```
+<br></br>
+<b>Exchanges:</b>
+
+|    Method    |     Url      |      Descritpion      |
+|:------------:|:------------:|:---------------------:|
+| <b>POST</b>  |  /exchanges  | exchange any currency |
+
+<br></br>
+<b>example request:</b>
+```
+{
+  "amount": 20.20,
+  "fromCurrency": "PLN",
+  "toCurrency": "USD"
+}
+```
+<br></br>
+<b>response:</b>
+```
+{
+  "amount": 20.2,
+  "fromCurrency": "PLN",
+  "toCurrency": "USD",
+  "convertedAmount": 4.68
+}
+```
+
+<br></br>
+<b>Images:</b>
 
 ![1](images/1.png)
 
