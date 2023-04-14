@@ -37,4 +37,10 @@ public class CurrencyExceptionHandler {
         log.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body("The amount cannot have more than two decimal places");
     }
+
+    @ExceptionHandler(value = RatesCannotSaveToDataBaseException.class)
+    public ResponseEntity<String> ratesCannotSaveToDataBaseException(RatesCannotSaveToDataBaseException e) {
+        log.error(e.getMessage(), e);
+        return ResponseEntity.internalServerError().body("New rates cannot save to database. Problem connection with API");
+    }
 }

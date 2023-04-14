@@ -11,15 +11,20 @@ import com.mateuszwed.currencyExchange.dto.ExchangeRateDto;
 import com.mateuszwed.currencyExchange.dto.NBPRateDto;
 import com.mateuszwed.currencyExchange.exception.ExchangeAmountTooLongException;
 import com.mateuszwed.currencyExchange.exception.NoCurrencyException;
+import com.mateuszwed.currencyExchange.exception.RatesCannotSaveToDataBaseException;
 import com.mateuszwed.currencyExchange.mapper.ExchangeMapper;
+import com.mateuszwed.currencyExchange.mapper.RateMapper;
 import com.mateuszwed.currencyExchange.repository.ExchangeRepository;
+import com.mateuszwed.currencyExchange.repository.RateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class CurrencyService {
     NBPApiClient nbpApiClient;
     ExchangeMapper exchangeMapper;
+    RateMapper rateMapper;
     ExchangeRepository exchangeRepository;
+    RateRepository rateRepository;
     @NonFinal
     @Value("${nbp.api.url.table.a}")
     String nbpTableA;
@@ -37,16 +44,40 @@ public class CurrencyService {
 
     @Transactional
     public ExchangeRateDto convertCurrency(ExchangeDto exchange) {
-        if(exchange.getAmount().scale() > 2){
+        if (exchange.getAmount().scale() > 2) {
             throw new ExchangeAmountTooLongException("The amount cannot have more than two decimal places");
         }
-        var nbpRateList = getCurrencyFromApi();
+        var nbpRateList = getRateList();
         var fromCurrency = exchange.getFromCurrency().toUpperCase();
         var toCurrency = exchange.getToCurrency().toUpperCase();
         var amount = exchange.getAmount().setScale(2, RoundingMode.HALF_UP);
         var convertedAmount = calculateCurrencyAmount(fromCurrency, toCurrency, amount, nbpRateList);
         var exchangeEntity = exchangeMapper.toEntity(exchange, convertedAmount);
         return exchangeMapper.toDto(exchangeRepository.save(exchangeEntity));
+    }
+
+    @Transactional
+    private List<NBPRateDto> getRateList() {
+        if (rateRepository.count() == 0) {
+            return getRates();
+        } else {
+            return rateMapper.toDto(rateRepository.findAll());
+        }
+    }
+
+    @Scheduled(cron = "${app.scheduled-rates.cron}")
+    @Transactional
+    public List<NBPRateDto> getRates() {
+        try {
+            var nbpRateList = getCurrencyFromApi();
+            var rateEntity = rateMapper.toEntity(nbpRateList);
+            if (rateRepository.count() != 0) {
+                rateRepository.deleteAll();
+            }
+            return rateMapper.toDto(rateRepository.saveAll(rateEntity));
+        } catch (RestClientException e) {
+            throw new RatesCannotSaveToDataBaseException("New rates cannot save to database. Problem connection with API");
+        }
     }
 
     private List<NBPRateDto> getCurrencyFromApi() {
